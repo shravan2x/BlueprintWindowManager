@@ -1,0 +1,171 @@
+﻿{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [
+        "name",
+        "monitorMatch",
+        "engineInitScripts",
+        "rules"
+    ],
+    "properties": {
+        "name": {
+            "description": "A name for the window blueprint. This is used in the output log.",
+            "type": "string"
+        },
+        "monitorMatch": {
+            "description": "A mapping of names to monitors. Every monitor must have exactly one defined name.",
+            "type": "object",
+            "required": [
+                "laptop",
+                "mon_right",
+                "mon_left"
+            ],
+            "patternProperties": {
+                "^.*$": {
+                    "description": "Specifications to identify a specific monitor.",
+                    "type": "object",
+                    "properties": {
+                        "x": {
+                            "description": "The x coordinate of the rectangle portion of the screen displayedby this monitor.",
+                            "type": "integer"
+                        },
+                        "y": {
+                            "description": "The y coordinate of the rectangle portion of the screen displayedby this monitor.",
+                            "type": "integer"
+                        },
+                        "width": {
+                            "description": "The width of the rectangle portion of the screen displayedby this monitor.",
+                            "type": "integer"
+                        },
+                        "height": {
+                            "description": "The height of the rectangle portion of the screen displayedby this monitor.",
+                            "type": "integer"
+                        },
+                        "dpiX": {
+                            "description": "The horizontal DPI of the monitor.",
+                            "type": "integer"
+                        },
+                        "dpiY": {
+                            "description": "The vertical DPI of this monitor.",
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "x",
+                        "y",
+                        "width",
+                        "height",
+                        "dpiX",
+                        "dpiY"
+                    ]
+                }
+            }
+        },
+        "engineInitScripts": {
+            "description": "A list of scripts to initialize the JS engine that calculated window positions. Use this to define custom functions.",
+            "type": "array",
+            "items": [
+                {
+                    "description": "A script to be executed by the JS engine.",
+                    "type": "string"
+                }
+            ]
+        },
+        "rules": {
+            "description": "Rules to match windows against. Each window is tested against the rules in order and the first matching one is applied.",
+            "type": "array",
+            "items": [
+                {
+                    "description": "A rule to set matching windows' positions.",
+                    "type": "object",
+                    "required": [
+                        "enabled",
+                        "name",
+                        "filters",
+                        "targetMonitor",
+                        "targetRect",
+                        "targetState"
+                    ],
+                    "properties": {
+                        "enabled": {
+                            "description": "A flag to disable this rule temporarily.",
+                            "type": "boolean"
+                        },
+                        "name": {
+                            "description": "A name for the rule. This is used in the output log.",
+                            "type": "string"
+                        },
+                        "filters": {
+                            "description": "Filters to match each window against. Since negative filtering is used, specifying no filters will match all windows.",
+                            "type": "object",
+                            "properties": {
+                                "windowTitle": {
+                                    "description": "A regex filter to match the window title against.",
+                                    "type": "string"
+                                },
+                                "windowClass": {
+                                    "description": "A regex filter to match the window class against.",
+                                    "type": "string"
+                                },
+                                "programPath": {
+                                    "description": "A regex filter to match the program path against.",
+                                    "type": "string"
+                                },
+                                "taskbarAppId": {
+                                    "description": "A regex filter to match the taskbar app ID against.",
+                                    "type": "string"
+                                },
+                                "taskbarIndex": {
+                                    "description": "A regex filter to match the window's taskbar button group index against. Use an empty string to match against windows that aren't on the taskbar.",
+                                    "type": "string"
+                                },
+                                "taskbarSubIndex": {
+                                    "description": "A regex filter to match the window's taskbar button index against. Use an empty string to match against windows that aren't in a button group.",
+                                    "type": "string"
+                                },
+                                "isToolWindow": {
+                                    "description": "A filter to match on whether the window is a tool window.",
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "targetMonitor": {
+                            "descriptions": "The monitor to move this window to. The value set here must be one defined in 'monitorMatch'.",
+                            "type": "string"
+                        },
+                        "targetRect": {
+                            "type": "object",
+                            "properties": {
+                                "posX": {
+                                    "description": "A javascript expression to evaluate for the x coordinate of the window in pixels.",
+                                    "type": "string"
+                                },
+                                "posY": {
+                                    "description": "A javascript expression to evaluate for the y coordinate of the window in pixels.",
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "description": "A javascript expression to evaluate for the width of the window in pixels.",
+                                    "type": "string"
+                                },
+                                "height": {
+                                    "description": "A javascript expression to evaluate for the height of the window in pixels.",
+                                    "type": "string"
+                                },
+                                "center": {
+                                    "description": "If set, the window will be centered on the monitor. Use posX and posY to override the centering in a specific direction.",
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "targetState": {
+                            "description": "The state to set the window to.",
+                            "type": "string",
+                            "enum": ["restored", "minimized", "maximized"]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
