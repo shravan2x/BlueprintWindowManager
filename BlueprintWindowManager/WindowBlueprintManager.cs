@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Jint.Parser;
 using Console = Colorful.Console;
 
 namespace BlueprintWindowManager
@@ -51,7 +52,17 @@ namespace BlueprintWindowManager
             jsEngine.SetValue("console", new { log = new Action<object>(Console.WriteLine) });
             jsEngine.SetValue("programWindows", (new JsonParser(jsEngine)).Parse(JsonConvert.SerializeObject(_programWindowManager.ProgramWindows)));
             foreach (string engineInitScript in blueprint.EngineInitScripts)
-                jsEngine.Execute(engineInitScript);
+            {
+                try
+                {
+                    jsEngine.Execute(engineInitScript);
+                }
+                catch (Exception ex) when (ex is ParserException || ex is JavaScriptException)
+                {
+                    Console.WriteLine($"Error executing engine init script ({ex.Message}).", Color.Red);
+                    return;
+                }
+            }
 
             int programWindowIndex = 0;
             foreach (ProgramWindow programWindow in _programWindowManager.ProgramWindows.OrderBy(x => Path.GetFileName(x.ProgramPath)))
@@ -122,7 +133,7 @@ namespace BlueprintWindowManager
 
                     Console.WriteLine($"\tTarget rect: (left: {targetWindowLeft}, top: {targetWindowTop}, width: {targetWindowWidth}, height: {targetWindowHeight})", Color.Gray);
                 }
-                catch (JavaScriptException ex)
+                catch (Exception ex) when (ex is ParserException || ex is JavaScriptException)
                 {
                     Console.WriteLine($"\tError calculating targetRect ({ex.Message}). Skipping window ...", Color.Red);
                     continue;
