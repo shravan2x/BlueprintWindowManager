@@ -119,20 +119,23 @@ namespace BlueprintWindowManager
                 int targetWindowHeight = srcWindowRect.bottom - srcWindowRect.top;
                 try
                 {
+                    // Window width and height have to be calculated prior to centering
+                    if (matchedRule.TargetRect.Width != null)
+                        targetWindowWidth = (int) jsEngine.Execute(matchedRule.TargetRect.Width).GetCompletionValue().AsNumber();
+                    if (matchedRule.TargetRect.Height != null)
+                        targetWindowHeight = (int) jsEngine.Execute(matchedRule.TargetRect.Height).GetCompletionValue().AsNumber();
+
                     if (matchedRule.TargetRect.IsCenter)
                     {
                         targetWindowLeft = targetMonitorInfo.MonitorRect.left + ((targetMonitorWidth - targetWindowWidth) / 2);
                         targetWindowTop = targetMonitorInfo.MonitorRect.top + ((targetMonitorHeight - targetWindowHeight) / 2);
                     }
 
+                    // Allow users to override either after centering.
                     if (matchedRule.TargetRect.PosX != null)
                         targetWindowLeft = (int) jsEngine.Execute(matchedRule.TargetRect.PosX).GetCompletionValue().AsNumber();
                     if (matchedRule.TargetRect.PosY != null)
                         targetWindowTop = (int) jsEngine.Execute(matchedRule.TargetRect.PosY).GetCompletionValue().AsNumber();
-                    if (matchedRule.TargetRect.Width != null)
-                        targetWindowWidth = (int) jsEngine.Execute(matchedRule.TargetRect.Width).GetCompletionValue().AsNumber();
-                    if (matchedRule.TargetRect.Height != null)
-                        targetWindowHeight = (int) jsEngine.Execute(matchedRule.TargetRect.Height).GetCompletionValue().AsNumber();
 
                     Console.WriteLine($"\tTarget rect: (left: {targetWindowLeft}, top: {targetWindowTop}, width: {targetWindowWidth}, height: {targetWindowHeight})", Color.Gray);
                 }
