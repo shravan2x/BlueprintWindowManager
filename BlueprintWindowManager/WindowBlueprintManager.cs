@@ -51,16 +51,19 @@ namespace BlueprintWindowManager
             Engine jsEngine = new Engine();
             jsEngine.SetValue("console", new { log = new Action<object>(Console.WriteLine) });
             jsEngine.SetValue("programWindows", (new JsonParser(jsEngine)).Parse(JsonConvert.SerializeObject(_programWindowManager.ProgramWindows)));
-            foreach (string engineInitScript in blueprint.EngineInitScripts)
+            if (blueprint.EngineInitScripts != null)
             {
-                try
+                foreach (string engineInitScript in blueprint.EngineInitScripts)
                 {
-                    jsEngine.Execute(engineInitScript);
-                }
-                catch (Exception ex) when (ex is ParserException || ex is JavaScriptException)
-                {
-                    Console.WriteLine($"Error executing engine init script ({ex.Message}).", Color.Red);
-                    return;
+                    try
+                    {
+                        jsEngine.Execute(engineInitScript);
+                    }
+                    catch (Exception ex) when (ex is ParserException || ex is JavaScriptException)
+                    {
+                        Console.WriteLine($"Error executing engine init script ({ex.Message}).", Color.Red);
+                        return;
+                    }
                 }
             }
 
