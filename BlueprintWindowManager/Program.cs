@@ -20,10 +20,7 @@ namespace BlueprintWindowManager
             if (optionsResult.Tag != ParserResultType.Parsed)
                 return;
 
-            Options options = null;
-            optionsResult.WithParsed(x => options = x);
-            if (options == null)
-                throw new Exception("Options should not be null.");
+            Options options = (optionsResult as Parsed<Options>)?.Value;
 
             User32.SetProcessDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
             WinApiUtils.SetDllDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, (Environment.Is64BitProcess ? "x64" : "x86")));
