@@ -43,6 +43,8 @@ namespace BlueprintWindowManager
         public string Comment { get; private set; }
         [JsonProperty("filters")]
         public WindowFilters Filters { get; private set; }
+        [JsonProperty("scripts")]
+        public IReadOnlyList<string>? Scripts { get; private set; }
         [JsonProperty("targetMonitor")]
         public string? TargetMonitor { get; private set; }
         [JsonProperty("targetRect")]

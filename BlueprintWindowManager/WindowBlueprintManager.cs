@@ -124,6 +124,10 @@ namespace BlueprintWindowManager
                 int targetWindowHeight = srcWindowRect.bottom - srcWindowRect.top;
                 try
                 {
+                    if (matchedRule.Scripts != null)
+                        foreach (string script in matchedRule.Scripts)
+                            jsEngine.Execute(script);
+
                     // Window width and height have to be calculated prior to centering
                     if (matchedRule.TargetRect.Width != null)
                         targetWindowWidth = (int) jsEngine.Execute(matchedRule.TargetRect.Width).GetCompletionValue().AsNumber();
