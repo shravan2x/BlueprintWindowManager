@@ -1,12 +1,12 @@
 ﻿using CommandLine;
 using Newtonsoft.Json;
+using Pastel;
 using PInvoke;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using Console = Colorful.Console;
 
 namespace BlueprintWindowManager
 {
@@ -22,13 +22,14 @@ namespace BlueprintWindowManager
 
             Options options = (optionsResult as Parsed<Options>)?.Value;
 
+            Console.Clear();
             User32.SetProcessDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
             WinApiUtils.SetDllDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory!, (Environment.Is64BitProcess ? "x64" : "x86")));
 
-            Console.WriteLine("Fetching monitor list ...");
+            Console.WriteLine("Fetching monitor list ...".Pastel(Color.Gray));
             IReadOnlyList<WinApiUtils.MonitorInfo> monitors = WinApiUtils.GetAllMonitorInfos();
             foreach (WinApiUtils.MonitorInfo monitor in monitors)
-                Console.WriteLine($"Found '{monitor.Name}' (x: {monitor.MonitorRect.left}, y: {monitor.MonitorRect.top}, width: {monitor.MonitorRect.right - monitor.MonitorRect.left}, height: {monitor.MonitorRect.bottom - monitor.MonitorRect.top}, dpiX: {monitor.DpiX}, dpiY: {monitor.DpiY}).");
+                Console.WriteLine($"Found '{monitor.Name}' (x: {monitor.MonitorRect.left}, y: {monitor.MonitorRect.top}, width: {monitor.MonitorRect.right - monitor.MonitorRect.left}, height: {monitor.MonitorRect.bottom - monitor.MonitorRect.top}, dpiX: {monitor.DpiX}, dpiY: {monitor.DpiY}).".Pastel(Color.Gray));
 
             ProgramWindowManager programWindowManager = new ProgramWindowManager(monitors, options.IsDryRun);
             WindowBlueprintManager windowBlueprintManager = new WindowBlueprintManager(programWindowManager, monitors);
@@ -54,23 +55,23 @@ namespace BlueprintWindowManager
                 }
                 catch (JsonException ex)
                 {
-                    Console.WriteLine($"Error reading layout definition {Path.GetFileName(options.BlueprintFile)} ({ex.Message}).", Color.Red);
+                    Console.WriteLine($"Error reading layout definition {Path.GetFileName(options.BlueprintFile)} ({ex.Message}).".Pastel(Color.Red));
                     return null;
                 }
 
                 if (!windowBlueprintManager.TryValidateMonitorMatch(blueprint, out IReadOnlyDictionary<string, WinApiUtils.MonitorInfo> monitorMapping))
                 {
                     if (monitorMapping.Values.Any(x => x == null))
-                        Console.WriteLine("Monitor contained invalid mapping. Cannot proceed.", Color.Red);
+                        Console.WriteLine("Monitor contained invalid mapping. Cannot proceed.".Pastel(Color.Red));
                     if (monitorMapping.Values.Count() != monitorMapping.Values.Distinct().Count())
-                        Console.WriteLine("Monitor contained duplicate mappings. Cannot proceed.", Color.Red);
+                        Console.WriteLine("Monitor contained duplicate mappings. Cannot proceed.".Pastel(Color.Red));
                     return null;
                 }
 
                 return blueprint;
             }
 
-            Console.WriteLine("Reading layout definitions ...");
+            Console.WriteLine("Reading layout definitions ...".Pastel(Color.Gray));
             IEnumerable<string> windowLayouts = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*{WindowBlueprintFileExtension}");
             List<WindowBlueprint> validBlueprints = new List<WindowBlueprint>();
             foreach (string windowLayout in windowLayouts)
@@ -78,16 +79,16 @@ namespace BlueprintWindowManager
                 try
                 {
                     WindowBlueprint blueprint = JsonConvert.DeserializeObject<WindowBlueprint>(File.ReadAllText(windowLayout))!;
-                    Console.WriteLine($"Loaded layout definition '{blueprint.Name}' ({blueprint.Rules.Count} rules, {Path.GetFileName(windowLayout)}).");
+                    Console.WriteLine($"Loaded layout definition '{blueprint.Name}' ({blueprint.Rules.Count} rules, {Path.GetFileName(windowLayout)}).".Pastel(Color.Gray));
 
                     if (windowBlueprintManager.TryValidateMonitorMatch(blueprint, out _))
                         validBlueprints.Add(blueprint);
                     else
-                        Console.WriteLine("\tSkipping as monitor match failed.");
+                        Console.WriteLine("\tSkipping as monitor match failed.".Pastel(Color.Gray));
                 }
                 catch (JsonException ex)
                 {
-                    Console.WriteLine($"Error reading layout definition {Path.GetFileName(windowLayout)} ({ex.Message}).", Color.Red);
+                    Console.WriteLine($"Error reading layout definition {Path.GetFileName(windowLayout)} ({ex.Message}).".Pastel(Color.Red));
                 }
             }
 
@@ -98,7 +99,7 @@ namespace BlueprintWindowManager
             }
             else if (validBlueprints.Count > 1)
             {
-                Console.WriteLine("Layouts available:");
+                Console.WriteLine("Layouts available:".Pastel(Color.Gray));
                 for (int index = 0; index < validBlueprints.Count; index++)
                     Console.WriteLine($"\t{index}: {validBlueprints[index].Name}");
                 Console.Write("Which would you like to apply? ");
@@ -110,7 +111,7 @@ namespace BlueprintWindowManager
                 }
                 catch
                 {
-                    Console.WriteLine("Invalid selection. Terminating.", Color.Red);
+                    Console.WriteLine("Invalid selection. Terminating.".Pastel(Color.Red));
                     return null;
                 }
             }

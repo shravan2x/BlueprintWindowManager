@@ -1,5 +1,6 @@
 ﻿using MoreLinq;
 using Newtonsoft.Json;
+using Pastel;
 using PInvoke;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Console = Colorful.Console;
 
 namespace BlueprintWindowManager
 {
@@ -50,15 +50,19 @@ namespace BlueprintWindowManager
                 return false;
             }
 
-            Console.WriteLine("Fetching program window data ...");
+            Console.WriteLine("Fetching program window data ...".Pastel(Color.Gray));
             Stopwatch sw = Stopwatch.StartNew();
             try
             {
+                Console.WriteLine("Fetching window list ...".Pastel(Color.Gray));
                 _windows = WinApiUtils.GetAllWindows().Where(User32.IsWindowVisible).ToList();
+                Console.WriteLine("Building window PID map ...".Pastel(Color.Gray));
                 BuildWindowProcessIdMap();
+                Console.WriteLine("Building PID path map ...".Pastel(Color.Gray));
                 BuildPidPathMap();
+                Console.WriteLine("Consolidating ProgramWindow instances ...".Pastel(Color.Gray));
                 ConsolidateProgramWindowInstances();
-                Console.WriteLine($"Fetched program window data in {sw.ElapsedMilliseconds}ms.");
+                Console.WriteLine($"Fetched program window data in {sw.ElapsedMilliseconds}ms.".Pastel(Color.Gray));
             }
             catch (Exception ex)
             {
@@ -66,7 +70,7 @@ namespace BlueprintWindowManager
                 return false;
             }
 
-            Console.WriteLine($"Identified {ProgramWindows.Count} program windows.");
+            Console.WriteLine($"Identified {ProgramWindows.Count} program windows.".Pastel(Color.Gray));
             return true;
         }
 
@@ -89,7 +93,7 @@ namespace BlueprintWindowManager
                 Console.WriteLine($"\tAdjusted rect (right: {targetRect.right}, bottom: {targetRect.bottom})");
             }
 
-            Console.WriteLine($"\tTarget window state is {windowState}.", Color.Gray);
+            Console.WriteLine($"\tTarget window state is {windowState}.".Pastel(Color.Gray));
             User32.WindowShowStyle targetShowStyle = User32.WindowShowStyle.SW_RESTORE;
             if (windowState == WindowState.Minimized)
                 targetShowStyle = User32.WindowShowStyle.SW_MINIMIZE;
@@ -109,17 +113,17 @@ namespace BlueprintWindowManager
                 //User32.ShowWindow(windowHandle, targetShowStyle);
 
                 if (!User32.SetWindowPlacement(windowHandle, targetWindowPlacement))
-                    Console.WriteLine("\tError setting window placement.", Color.Red);
+                    Console.WriteLine("\tError setting window placement.".Pastel(Color.Red));
             }
             else
             {
                 targetWindowPlacement.showCmd = User32.WindowShowStyle.SW_RESTORE;
                 if (!User32.SetWindowPlacement(windowHandle, targetWindowPlacement))
-                    Console.WriteLine("\tError setting window placement 1.", Color.Red);
+                    Console.WriteLine("\tError setting window placement 1.".Pastel(Color.Red));
 
                 targetWindowPlacement.showCmd = targetShowStyle;
                 if (!User32.SetWindowPlacement(windowHandle, targetWindowPlacement))
-                    Console.WriteLine("\tError setting window placement 2.", Color.Red);
+                    Console.WriteLine("\tError setting window placement 2.".Pastel(Color.Red));
             }
         }
 

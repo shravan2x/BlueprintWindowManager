@@ -2,6 +2,7 @@
 using Jint.Native.Json;
 using Jint.Runtime;
 using Newtonsoft.Json;
+using Pastel;
 using PInvoke;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Jint.Parser;
-using Console = Colorful.Console;
 
 namespace BlueprintWindowManager
 {
@@ -61,7 +61,7 @@ namespace BlueprintWindowManager
                     }
                     catch (Exception ex) when (ex is ParserException || ex is JavaScriptException)
                     {
-                        Console.WriteLine($"Error executing engine init script ({ex.Message}).", Color.Red);
+                        Console.WriteLine($"Error executing engine init script ({ex.Message}).".Pastel(Color.Red));
                         return;
                     }
                 }
@@ -70,12 +70,12 @@ namespace BlueprintWindowManager
             int programWindowIndex = 0;
             foreach (ProgramWindow programWindow in _programWindowManager.ProgramWindows.OrderBy(x => Path.GetFileName(x.ProgramPath)))
             {
-                Console.WriteLine($"[{++programWindowIndex}/{_programWindowManager.ProgramWindows.Count}] Processing window {programWindow.WindowHandle.ToInt32():X16} ({programWindow.WindowTitle}) ...", Color.White);
-                Console.WriteLine($"\tProgram path: ({programWindow.ProgramPath}).", Color.Gray);
-                Console.WriteLine($"\tWindow class: {programWindow.WindowClass}.", Color.Gray);
-                Console.WriteLine($"\tIs tool window: {programWindow.IsToolWindow}.", Color.Gray);
-                Console.WriteLine($"\tTaskbar position: (index: {programWindow.TaskbarIndex?.ToString() ?? "<none>"}, subindex: {programWindow.TaskbarSubIndex?.ToString() ?? "<none>"}).", Color.Gray);
-                Console.WriteLine($"\tOriginal rect: (left: {programWindow.WindowRect.left}, top: {programWindow.WindowRect.top}, width: {programWindow.WindowRect.right - programWindow.WindowRect.left}, height: {programWindow.WindowRect.bottom - programWindow.WindowRect.top})", Color.Gray);
+                Console.WriteLine($"[{++programWindowIndex}/{_programWindowManager.ProgramWindows.Count}] Processing window {programWindow.WindowHandle.ToInt32():X16} ({programWindow.WindowTitle.Pastel(Color.CornflowerBlue)}) ...".Pastel(Color.White));
+                Console.WriteLine($"\tProgram path: ({programWindow.ProgramPath}).".Pastel(Color.Gray));
+                Console.WriteLine($"\tWindow class: {programWindow.WindowClass}.".Pastel(Color.Gray));
+                Console.WriteLine($"\tIs tool window: {programWindow.IsToolWindow}.".Pastel(Color.Gray));
+                Console.WriteLine($"\tTaskbar position: (index: {programWindow.TaskbarIndex?.ToString() ?? "<none>"}, subindex: {programWindow.TaskbarSubIndex?.ToString() ?? "<none>"}).".Pastel(Color.Gray));
+                Console.WriteLine($"\tOriginal rect: (left: {programWindow.WindowRect.left}, top: {programWindow.WindowRect.top}, width: {programWindow.WindowRect.right - programWindow.WindowRect.left}, height: {programWindow.WindowRect.bottom - programWindow.WindowRect.top})".Pastel(Color.Gray));
 
                 LayoutRule? matchedRule = FindMatchingLayoutRule(programWindow, blueprint.Rules);
                 if (matchedRule == null)
@@ -88,7 +88,7 @@ namespace BlueprintWindowManager
                         targetMonitorInfo = monitorMapping[matchedRule.TargetMonitor];
                     else
                     {
-                        Console.WriteLine($"\tNo mapped monitor found by name '{matchedRule.TargetMonitor}'. Skipping window ...", Color.Red);
+                        Console.WriteLine($"\tNo mapped monitor found by name '{matchedRule.TargetMonitor}'. Skipping window ...".Pastel(Color.Red));
                         continue;
                     }
                 }
@@ -137,11 +137,11 @@ namespace BlueprintWindowManager
                     if (matchedRule.TargetRect.PosY != null)
                         targetWindowTop = (int) jsEngine.Execute(matchedRule.TargetRect.PosY).GetCompletionValue().AsNumber();
 
-                    Console.WriteLine($"\tTarget rect: (left: {targetWindowLeft}, top: {targetWindowTop}, width: {targetWindowWidth}, height: {targetWindowHeight})", Color.Gray);
+                    Console.WriteLine($"\tTarget rect: (left: {targetWindowLeft}, top: {targetWindowTop}, width: {targetWindowWidth}, height: {targetWindowHeight})".Pastel(Color.Gray));
                 }
                 catch (Exception ex) when (ex is ParserException || ex is JavaScriptException)
                 {
-                    Console.WriteLine($"\tError calculating targetRect ({ex.Message}). Skipping window ...", Color.Red);
+                    Console.WriteLine($"\tError evaluating rule ({ex.Message}). Skipping window ...".Pastel(Color.Red));
                     continue;
                 }
 
@@ -183,11 +183,11 @@ namespace BlueprintWindowManager
                 }
                 catch (Exception ex) when (ex.Message.StartsWith("Invalid pattern")) // It doesn't know RegexParseException for some reason.
                 {
-                    Console.WriteLine($"\t{ex.Message} Skipping window ...", Color.Gray);
+                    Console.WriteLine($"\t{ex.Message} Skipping window ...".Pastel(Color.Gray));
                     return null;
                 }
 
-                Console.WriteLine($"\tRule '{layoutRule.Name}' matches.", Color.Gray);
+                Console.WriteLine($"\tRule '{layoutRule.Name}' matches.".Pastel(Color.ForestGreen));
                 return layoutRule;
             }
 
