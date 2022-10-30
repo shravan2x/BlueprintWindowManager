@@ -67,6 +67,11 @@ namespace BlueprintWindowManager
                 }
             }
 
+            if (WinApiUtils.IsWindows11OrHigher())
+                foreach (LayoutRule rule in blueprint.Rules)
+                    if (rule.Filters.TaskbarAppId != null || rule.Filters.TaskbarIndex != null || rule.Filters.TaskbarSubIndex != null)
+                        Console.WriteLine($"Ignoring rule '{rule.Name}' as it uses taskbar filters which aren't supported in Windows 11.".Pastel(Color.DarkOrange));
+
             int programWindowIndex = 0;
             foreach (ProgramWindow programWindow in _programWindowManager.ProgramWindows.OrderBy(x => Path.GetFileName(x.ProgramPath)))
             {

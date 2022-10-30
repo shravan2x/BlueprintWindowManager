@@ -37,18 +37,23 @@ namespace BlueprintWindowManager
 
         public bool LoadProgramWindows()
         {
-            Console.WriteLine("Loading taskbar info ...");
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            try
+            if (!WinApiUtils.IsWindows11OrHigher())
             {
-                LoadTaskbarInfo();
-                Console.WriteLine($"Taskbar info loaded in {stopwatch.ElapsedMilliseconds}ms ({_taskbarInfo.Count} button groups, {_taskbarInfo.Sum(x => x.Buttons.Count)} buttons).");
+                Console.WriteLine("Loading taskbar info ...");
+                try
+                {
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    LoadTaskbarInfo();
+                    Console.WriteLine($"Taskbar info loaded in {stopwatch.ElapsedMilliseconds}ms ({_taskbarInfo.Count} button groups, {_taskbarInfo.Sum(x => x.Buttons.Count)} buttons).");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error fetching taskbar info ({ex.Message}).");
+                    return false;
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching taskbar info ({ex.Message}).");
-                return false;
-            }
+            else
+                Console.WriteLine("Loading taskbar info is not supported in Windows 11. Skipping ...".Pastel(Color.DarkOrange));
 
             Console.WriteLine("Fetching program window data ...".Pastel(Color.Gray));
             Stopwatch sw = Stopwatch.StartNew();
@@ -129,14 +134,7 @@ namespace BlueprintWindowManager
 
         private void LoadTaskbarInfo()
         {
-            try
-            {
-                _taskbarInfo = TaskbarInfo.GetPrimaryTaskbarInfo();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error loading taskbar info ({ex.Message}).");
-            }
+            _taskbarInfo = TaskbarInfo.GetPrimaryTaskbarInfo();
         }
 
         private void BuildWindowProcessIdMap()
@@ -212,14 +210,17 @@ namespace BlueprintWindowManager
                 uint windowClassLen = User32.RealGetWindowClass(windowHandle, _buffer, (uint) _buffer.Length);
                 string windowClass = new string(_buffer, 0, (int) windowClassLen);
 
-                KeyValuePair<int, TaskbarInfo.ButtonGroup> taskbarButtonGroup = _taskbarInfo.Index().FirstOrDefault(x => x.Value.Buttons.Any(y => y.WindowHandle == windowHandle));
                 string? taskbarAppId = null;
                 uint? taskbarIndex = null, taskbarSubIndex = null;
-                if (taskbarButtonGroup.Value != null)
+                if (_taskbarInfo != null)
                 {
-                    taskbarAppId = taskbarButtonGroup.Value.AppId;
-                    taskbarIndex = (uint) taskbarButtonGroup.Key;
-                    taskbarSubIndex = (uint) taskbarButtonGroup.Value.Buttons.Index().First(x => x.Value.WindowHandle == windowHandle).Key;
+                    KeyValuePair<int, TaskbarInfo.ButtonGroup> taskbarButtonGroup = _taskbarInfo.Index().FirstOrDefault(x => x.Value.Buttons.Any(y => y.WindowHandle == windowHandle));
+                    if (taskbarButtonGroup.Value != null)
+                    {
+                        taskbarAppId = taskbarButtonGroup.Value.AppId;
+                        taskbarIndex = (uint) taskbarButtonGroup.Key;
+                        taskbarSubIndex = (uint) taskbarButtonGroup.Value.Buttons.Index().First(x => x.Value.WindowHandle == windowHandle).Key;
+                    }
                 }
 
                 int exStyle = User32.GetWindowLong(windowHandle, User32.WindowLongIndexFlags.GWL_EXSTYLE);

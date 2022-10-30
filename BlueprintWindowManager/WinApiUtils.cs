@@ -1,4 +1,5 @@
-﻿using PInvoke;
+﻿using Microsoft.Win32;
+using PInvoke;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -78,6 +79,21 @@ namespace BlueprintWindowManager
             }, IntPtr.Zero);
 
             return monitors;
+        }
+
+        public static bool IsWindows11OrHigher()
+        {
+            RegistryKey? reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+            if (reg == null)
+                throw new Exception("Unable to locate CurrentVersion registry key.");
+
+            string? currentBuildStr = (string?) reg.GetValue("CurrentBuild");
+            if (currentBuildStr == null)
+                throw new Exception("Unable to locate currentBuildStr registry key.");
+
+            int currentBuild = Int32.Parse(currentBuildStr);
+
+            return (currentBuild >= 22000);
         }
 
         public static bool Contains(this RECT rect, float x, float y)
