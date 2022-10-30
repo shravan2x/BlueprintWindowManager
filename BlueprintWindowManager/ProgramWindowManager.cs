@@ -19,11 +19,11 @@ namespace BlueprintWindowManager
         private readonly char[] _buffer;
         private readonly IReadOnlyList<WinApiUtils.MonitorInfo> _monitors;
 
-        private IReadOnlyList<TaskbarInfo.ButtonGroup> _taskbarInfo;
+        private IReadOnlyList<TaskbarInfo.ButtonGroup>? _taskbarInfo;
         private IReadOnlyList<IntPtr> _windows;
         private IReadOnlyDictionary<IntPtr, int> _windowProcessIdMap;
         private IReadOnlyDictionary<int, Process> _pidProcessCache;
-        private IReadOnlyDictionary<int, string> _pidPathMap;
+        private IReadOnlyDictionary<int, string?> _pidPathMap;
 
         public IReadOnlyList<ProgramWindow> ProgramWindows { get; set; }
 
@@ -155,7 +155,7 @@ namespace BlueprintWindowManager
 
         private void BuildPidPathMap()
         {
-            Dictionary<int, string> pidPathMap = new Dictionary<int, string>();
+            Dictionary<int, string?> pidPathMap = new Dictionary<int, string?>();
 
             foreach (Process process in _pidProcessCache.Values)
             {
@@ -209,7 +209,7 @@ namespace BlueprintWindowManager
                 string windowClass = new string(_buffer, 0, (int) windowClassLen);
 
                 KeyValuePair<int, TaskbarInfo.ButtonGroup> taskbarButtonGroup = _taskbarInfo.Index().FirstOrDefault(x => x.Value.Buttons.Any(y => y.WindowHandle == windowHandle));
-                string taskbarAppId = null;
+                string? taskbarAppId = null;
                 uint? taskbarIndex = null, taskbarSubIndex = null;
                 if (taskbarButtonGroup.Value != null)
                 {
@@ -241,7 +241,7 @@ namespace BlueprintWindowManager
         [JsonProperty("programPath", NullValueHandling = NullValueHandling.Ignore)]
         public string ProgramPath { get; }
         [JsonProperty("taskbarAppId", NullValueHandling = NullValueHandling.Ignore)]
-        public string TaskbarAppId { get; }
+        public string? TaskbarAppId { get; }
         [JsonProperty("taskbarIndex", NullValueHandling = NullValueHandling.Ignore)]
         public uint? TaskbarIndex { get; }
         [JsonProperty("taskbarSubIndex", NullValueHandling = NullValueHandling.Ignore)]
@@ -255,7 +255,7 @@ namespace BlueprintWindowManager
             string windowTitle,
             string windowClass,
             string programPath,
-            string taskbarAppId,
+            string? taskbarAppId,
             uint? taskbarIndex,
             uint? taskbarSubIndex,
             bool isToolWindow)

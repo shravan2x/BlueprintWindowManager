@@ -23,7 +23,7 @@ namespace BlueprintWindowManager
             Options options = (optionsResult as Parsed<Options>)?.Value;
 
             User32.SetProcessDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
-            WinApiUtils.SetDllDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, (Environment.Is64BitProcess ? "x64" : "x86")));
+            WinApiUtils.SetDllDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory!, (Environment.Is64BitProcess ? "x64" : "x86")));
 
             Console.WriteLine("Fetching monitor list ...");
             IReadOnlyList<WinApiUtils.MonitorInfo> monitors = WinApiUtils.GetAllMonitorInfos();
@@ -33,7 +33,7 @@ namespace BlueprintWindowManager
             ProgramWindowManager programWindowManager = new ProgramWindowManager(monitors, options.IsDryRun);
             WindowBlueprintManager windowBlueprintManager = new WindowBlueprintManager(programWindowManager, monitors);
 
-            WindowBlueprint blueprint = GetPreferredBlueprint(options, windowBlueprintManager);
+            WindowBlueprint? blueprint = GetPreferredBlueprint(options, windowBlueprintManager);
             if (blueprint == null)
                 return; // We've already displayed an error message in the called function.
 
@@ -43,14 +43,14 @@ namespace BlueprintWindowManager
             windowBlueprintManager.Apply(blueprint);
         }
 
-        private static WindowBlueprint GetPreferredBlueprint(Options options, WindowBlueprintManager windowBlueprintManager)
+        private static WindowBlueprint? GetPreferredBlueprint(Options options, WindowBlueprintManager windowBlueprintManager)
         {
             if (options.BlueprintFile != null)
             {
                 WindowBlueprint blueprint;
                 try
                 {
-                    blueprint = JsonConvert.DeserializeObject<WindowBlueprint>(File.ReadAllText(options.BlueprintFile));
+                    blueprint = JsonConvert.DeserializeObject<WindowBlueprint>(File.ReadAllText(options.BlueprintFile))!;
                 }
                 catch (JsonException ex)
                 {
@@ -77,7 +77,7 @@ namespace BlueprintWindowManager
             {
                 try
                 {
-                    WindowBlueprint blueprint = JsonConvert.DeserializeObject<WindowBlueprint>(File.ReadAllText(windowLayout));
+                    WindowBlueprint blueprint = JsonConvert.DeserializeObject<WindowBlueprint>(File.ReadAllText(windowLayout))!;
                     Console.WriteLine($"Loaded layout definition '{blueprint.Name}' ({blueprint.Rules.Count} rules, {Path.GetFileName(windowLayout)}).");
 
                     if (windowBlueprintManager.TryValidateMonitorMatch(blueprint, out _))
@@ -121,7 +121,7 @@ namespace BlueprintWindowManager
         private class Options
         {
             [Value(0, Required = false, MetaName = "blueprint file", HelpText = "Set bwindow blueprint file to use.")]
-            public string BlueprintFile { get; private set; }
+            public string? BlueprintFile { get; private set; }
 
             [Option("dryrun", Required = false, HelpText = "Set run mode to dryrun.")]
             public bool IsDryRun { get; private set; }

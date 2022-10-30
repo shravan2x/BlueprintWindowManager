@@ -12,7 +12,7 @@ namespace BlueprintWindowManager
         [JsonProperty("monitorMatch", Required = Required.Always)]
         public IReadOnlyDictionary<string, MonitorMatcher> MonitorMatch { get; private set; }
         [JsonProperty("engineInitScripts")]
-        public IReadOnlyList<string> EngineInitScripts { get; private set; }
+        public IReadOnlyList<string>? EngineInitScripts { get; private set; }
         [JsonProperty("rules")]
         public IReadOnlyList<LayoutRule> Rules { get; private set; }
     }
@@ -44,7 +44,7 @@ namespace BlueprintWindowManager
         [JsonProperty("filters")]
         public WindowFilters Filters { get; private set; }
         [JsonProperty("targetMonitor")]
-        public string TargetMonitor { get; private set; }
+        public string? TargetMonitor { get; private set; }
         [JsonProperty("targetRect")]
         public WindowRect TargetRect { get; private set; }
         [JsonProperty("targetState")]
@@ -54,17 +54,17 @@ namespace BlueprintWindowManager
     public class WindowFilters
     {
         [JsonProperty("windowTitle")]
-        public string WindowTitle { get; private set; }
+        public string? WindowTitle { get; private set; }
         [JsonProperty("windowClass")]
-        public string WindowClass { get; private set; }
+        public string? WindowClass { get; private set; }
         [JsonProperty("programPath")]
-        public string ProgramPath { get; private set; }
+        public string? ProgramPath { get; private set; }
         [JsonProperty("taskbarAppId")]
-        public string TaskbarAppId { get; private set; }
+        public string? TaskbarAppId { get; private set; }
         [JsonProperty("taskbarIndex")]
-        public string TaskbarIndex { get; private set; }
+        public string? TaskbarIndex { get; private set; }
         [JsonProperty("taskbarSubIndex")]
-        public string TaskbarSubIndex { get; private set; }
+        public string? TaskbarSubIndex { get; private set; }
         [JsonProperty("isToolWindow")]
         public bool? IsToolWindow { get; private set; }
     }
@@ -72,13 +72,13 @@ namespace BlueprintWindowManager
     public class WindowRect
     {
         [JsonProperty("posX")]
-        public string PosX { get; private set; }
+        public string? PosX { get; private set; }
         [JsonProperty("posY")]
-        public string PosY { get; private set; }
+        public string? PosY { get; private set; }
         [JsonProperty("width")]
-        public string Width { get; private set; }
+        public string? Width { get; private set; }
         [JsonProperty("height")]
-        public string Height { get; private set; }
+        public string? Height { get; private set; }
         [JsonProperty("center")]
         public bool IsCenter { get; private set; }
     }

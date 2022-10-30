@@ -77,11 +77,11 @@ namespace BlueprintWindowManager
                 Console.WriteLine($"\tTaskbar position: (index: {programWindow.TaskbarIndex?.ToString() ?? "<none>"}, subindex: {programWindow.TaskbarSubIndex?.ToString() ?? "<none>"}).", Color.Gray);
                 Console.WriteLine($"\tOriginal rect: (left: {programWindow.WindowRect.left}, top: {programWindow.WindowRect.top}, width: {programWindow.WindowRect.right - programWindow.WindowRect.left}, height: {programWindow.WindowRect.bottom - programWindow.WindowRect.top})", Color.Gray);
 
-                LayoutRule matchedRule = FindMatchingLayoutRule(programWindow, blueprint.Rules);
+                LayoutRule? matchedRule = FindMatchingLayoutRule(programWindow, blueprint.Rules);
                 if (matchedRule == null)
                     continue;
 
-                WinApiUtils.MonitorInfo targetMonitorInfo = null;
+                WinApiUtils.MonitorInfo? targetMonitorInfo = null;
                 if (matchedRule.TargetMonitor != null)
                 {
                     if (monitorMapping.ContainsKey(matchedRule.TargetMonitor))
@@ -150,7 +150,7 @@ namespace BlueprintWindowManager
             }
         }
 
-        private static LayoutRule FindMatchingLayoutRule(ProgramWindow programWindow, IReadOnlyList<LayoutRule> layoutRules)
+        private static LayoutRule? FindMatchingLayoutRule(ProgramWindow programWindow, IReadOnlyList<LayoutRule> layoutRules)
         {
             foreach (LayoutRule layoutRule in layoutRules)
             {
