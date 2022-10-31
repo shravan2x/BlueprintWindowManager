@@ -160,9 +160,9 @@ namespace BlueprintWindowManager
 
                     // Allow users to override either after centering.
                     if (matchedRule.TargetRect.PosX != null)
-                        targetWindowLeft = (int) jsEngine.Execute(matchedRule.TargetRect.PosX).GetCompletionValue().AsNumber();
+                        targetWindowLeft = targetMonitorInfo.MonitorRect.left + (int) jsEngine.Execute(matchedRule.TargetRect.PosX).GetCompletionValue().AsNumber();
                     if (matchedRule.TargetRect.PosY != null)
-                        targetWindowTop = (int) jsEngine.Execute(matchedRule.TargetRect.PosY).GetCompletionValue().AsNumber();
+                        targetWindowTop = targetMonitorInfo.MonitorRect.top + (int) jsEngine.Execute(matchedRule.TargetRect.PosY).GetCompletionValue().AsNumber();
 
                     Console.WriteLine($"\tTarget rect: (left: {targetWindowLeft}, top: {targetWindowTop}, width: {targetWindowWidth}, height: {targetWindowHeight})".Pastel(Color.Gray));
                 }
