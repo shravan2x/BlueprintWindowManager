@@ -1,7 +1,7 @@
 ﻿using Jint;
-using Jint.Native.Json;
+using Jint.Native;
+using Jint.Parser;
 using Jint.Runtime;
-using Newtonsoft.Json;
 using Pastel;
 using PInvoke;
 using System;
@@ -10,7 +10,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Jint.Parser;
 
 namespace BlueprintWindowManager
 {
@@ -50,7 +49,7 @@ namespace BlueprintWindowManager
 
             Engine jsEngine = new Engine();
             jsEngine.SetValue("console", new { log = new Action<object>(Console.WriteLine) });
-            jsEngine.SetValue("programWindows", (new JsonParser(jsEngine)).Parse(JsonConvert.SerializeObject(_programWindowManager.ProgramWindows)));
+            jsEngine.SetValue("programWindows", JsValue.FromObject(jsEngine, _programWindowManager.ProgramWindows));
             if (blueprint.EngineInitScripts != null)
             {
                 foreach (string engineInitScript in blueprint.EngineInitScripts)
@@ -109,19 +108,38 @@ namespace BlueprintWindowManager
                     continue;
                 }
 
-                int targetMonitorWidth = targetMonitorInfo.MonitorRect.right - targetMonitorInfo.MonitorRect.left;
-                int targetMonitorHeight = targetMonitorInfo.MonitorRect.bottom - targetMonitorInfo.MonitorRect.top;
-                jsEngine.SetValue("monitorDpiX", targetMonitorInfo.DpiX);
-                jsEngine.SetValue("monitorDpiY", targetMonitorInfo.DpiY);
-                jsEngine.SetValue("monitorWidth", targetMonitorWidth);
-                jsEngine.SetValue("monitorHeight", targetMonitorHeight);
-                jsEngine.SetValue("workAreaWidth", targetMonitorInfo.WorkAreaRect.right - targetMonitorInfo.WorkAreaRect.left);
-                jsEngine.SetValue("workAreaHeight", targetMonitorInfo.WorkAreaRect.bottom - targetMonitorInfo.WorkAreaRect.top);
-
                 int targetWindowLeft = srcWindowRect.left;
                 int targetWindowTop = srcWindowRect.top;
                 int targetWindowWidth = srcWindowRect.right - srcWindowRect.left;
                 int targetWindowHeight = srcWindowRect.bottom - srcWindowRect.top;
+
+                int targetMonitorWidth = targetMonitorInfo.MonitorRect.right - targetMonitorInfo.MonitorRect.left;
+                int targetMonitorHeight = targetMonitorInfo.MonitorRect.bottom - targetMonitorInfo.MonitorRect.top;
+                // Monitor info
+                jsEngine.SetValue("monitorPosX", targetMonitorInfo.MonitorRect.left);
+                jsEngine.SetValue("monitorPosY", targetMonitorInfo.MonitorRect.top);
+                jsEngine.SetValue("monitorWidth", targetMonitorWidth);
+                jsEngine.SetValue("monitorHeight", targetMonitorHeight);
+                jsEngine.SetValue("monitorDpiX", targetMonitorInfo.DpiX);
+                jsEngine.SetValue("monitorDpiY", targetMonitorInfo.DpiY);
+                // Work area info
+                jsEngine.SetValue("workAreaPosX", targetMonitorInfo.WorkAreaRect.left);
+                jsEngine.SetValue("workAreaPosY", targetMonitorInfo.WorkAreaRect.top);
+                jsEngine.SetValue("workAreaWidth", targetMonitorInfo.WorkAreaRect.right - targetMonitorInfo.WorkAreaRect.left);
+                jsEngine.SetValue("workAreaHeight", targetMonitorInfo.WorkAreaRect.bottom - targetMonitorInfo.WorkAreaRect.top);
+                // Window info
+                jsEngine.SetValue("windowPosX", targetWindowLeft);
+                jsEngine.SetValue("windowPosY", targetWindowTop);
+                jsEngine.SetValue("windowWidth", targetWindowWidth);
+                jsEngine.SetValue("windowHeight", targetWindowHeight);
+                jsEngine.SetValue("windowTitle", programWindow.WindowTitle);
+                jsEngine.SetValue("windowClass", programWindow.WindowClass);
+                jsEngine.SetValue("programPath", programWindow.ProgramPath);
+                jsEngine.SetValue("taskbarAppId", programWindow.TaskbarAppId);
+                jsEngine.SetValue("taskbarIndex", programWindow.TaskbarIndex);
+                jsEngine.SetValue("taskbarSubIndex", programWindow.TaskbarSubIndex);
+                jsEngine.SetValue("isToolWindow", programWindow.IsToolWindow);
+
                 try
                 {
                     if (matchedRule.Scripts != null)
