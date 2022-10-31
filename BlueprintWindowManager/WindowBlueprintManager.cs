@@ -193,7 +193,7 @@ namespace BlueprintWindowManager
                         if (!Regex.IsMatch(programWindow.WindowClass, layoutRule.Filters.WindowClass))
                             continue;
                     if (layoutRule.Filters.ProgramPath != null)
-                        if (!Regex.IsMatch(programWindow.ProgramPath, layoutRule.Filters.ProgramPath))
+                        if (programWindow.ProgramPath == null || !Regex.IsMatch(programWindow.ProgramPath, layoutRule.Filters.ProgramPath))
                             continue;
                     if (layoutRule.Filters.TaskbarAppId != null)
                         if (!Regex.IsMatch(programWindow.TaskbarAppId, layoutRule.Filters.TaskbarAppId))

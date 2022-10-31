@@ -169,13 +169,16 @@ namespace BlueprintWindowManager
                     if (procHandle == Kernel32.SafeObjectHandle.Null)
                         throw new Exception();
                     if (procHandle.IsInvalid)
+                    {
+                        Console.WriteLine($"Can't fetch process path for PID {process.Id} as process handle could not be obtained ({process.ProcessName}) (Win32 error {(Win32ErrorCode) Marshal.GetLastWin32Error()}).".Pastel(Color.DarkOrange));
                         continue;
+                    }
 
                     int lpdwSize = _buffer.Length;
                     bool success = Kernel32.QueryFullProcessImageName(procHandle, Kernel32.QueryFullProcessImageNameFlags.None, _buffer, ref lpdwSize);
                     if (!success)
                     {
-                        Console.WriteLine($"Error calling QueryFullProcessImageName on PID {process.Id} ({process.ProcessName}) (Win32 error {Marshal.GetLastWin32Error()}).");
+                        Console.WriteLine($"Can't fetch process path for PID {process.Id} due to error calling QueryFullProcessImageName ({process.ProcessName}) (Win32 error {(Win32ErrorCode) Marshal.GetLastWin32Error()}).".Pastel(Color.DarkOrange));
                         continue;
                     }
 
@@ -204,7 +207,7 @@ namespace BlueprintWindowManager
                 }
 
                 int pid = _windowProcessIdMap[windowHandle];
-                string programPath = _pidPathMap[pid];
+                string? programPath = _pidPathMap[pid];
                 string windowTitle = WinApiUtils.GetWindowText(windowHandle);
 
                 uint windowClassLen = User32.RealGetWindowClass(windowHandle, _buffer, (uint) _buffer.Length);
@@ -244,7 +247,7 @@ namespace BlueprintWindowManager
         [JsonProperty("windowClass", NullValueHandling = NullValueHandling.Ignore)]
         public string WindowClass { get; }
         [JsonProperty("programPath", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProgramPath { get; }
+        public string? ProgramPath { get; }
         [JsonProperty("taskbarAppId", NullValueHandling = NullValueHandling.Ignore)]
         public string? TaskbarAppId { get; }
         [JsonProperty("taskbarIndex", NullValueHandling = NullValueHandling.Ignore)]
@@ -259,7 +262,7 @@ namespace BlueprintWindowManager
             RECT windowRect,
             string windowTitle,
             string windowClass,
-            string programPath,
+            string? programPath,
             string? taskbarAppId,
             uint? taskbarIndex,
             uint? taskbarSubIndex,
