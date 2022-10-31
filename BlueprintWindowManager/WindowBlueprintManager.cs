@@ -66,7 +66,7 @@ namespace BlueprintWindowManager
                 }
             }
 
-            if (WinApiUtils.IsWindows11OrHigher())
+            if (!_programWindowManager.IsTaskbarInfoLoaded())
                 foreach (LayoutRule rule in blueprint.Rules)
                     if (rule.Filters.TaskbarAppId != null || rule.Filters.TaskbarIndex != null || rule.Filters.TaskbarSubIndex != null)
                         Console.WriteLine($"Ignoring rule '{rule.Name}' as it uses taskbar filters which aren't supported in Windows 11.".Pastel(Color.DarkOrange));
@@ -177,7 +177,7 @@ namespace BlueprintWindowManager
             }
         }
 
-        private static LayoutRule? FindMatchingLayoutRule(ProgramWindow programWindow, IReadOnlyList<LayoutRule> layoutRules)
+        private LayoutRule? FindMatchingLayoutRule(ProgramWindow programWindow, IReadOnlyList<LayoutRule> layoutRules)
         {
             foreach (LayoutRule layoutRule in layoutRules)
             {
@@ -195,17 +195,18 @@ namespace BlueprintWindowManager
                     if (layoutRule.Filters.ProgramPath != null)
                         if (programWindow.ProgramPath == null || !Regex.IsMatch(programWindow.ProgramPath, layoutRule.Filters.ProgramPath))
                             continue;
-                    if (layoutRule.Filters.TaskbarAppId != null)
-                        if (!Regex.IsMatch(programWindow.TaskbarAppId, layoutRule.Filters.TaskbarAppId))
-                            continue;
-                    if (layoutRule.Filters.TaskbarIndex != null)
-                        if (!Regex.IsMatch(programWindow.TaskbarIndex?.ToString() ?? String.Empty, layoutRule.Filters.TaskbarIndex))
-                            continue;
-                    if (layoutRule.Filters.TaskbarSubIndex != null)
-                        if (!Regex.IsMatch(programWindow.TaskbarSubIndex?.ToString() ?? String.Empty, layoutRule.Filters.TaskbarSubIndex))
-                            continue;
                     if (layoutRule.Filters.IsToolWindow != null)
                         if (layoutRule.Filters.IsToolWindow != programWindow.IsToolWindow)
+                            continue;
+
+                    if (layoutRule.Filters.TaskbarAppId != null)
+                        if (!_programWindowManager.IsTaskbarInfoLoaded() || !Regex.IsMatch(programWindow.TaskbarAppId!, layoutRule.Filters.TaskbarAppId))
+                            continue;
+                    if (layoutRule.Filters.TaskbarIndex != null)
+                        if (!_programWindowManager.IsTaskbarInfoLoaded() || !Regex.IsMatch(programWindow.TaskbarIndex?.ToString() ?? String.Empty, layoutRule.Filters.TaskbarIndex))
+                            continue;
+                    if (layoutRule.Filters.TaskbarSubIndex != null)
+                        if (!_programWindowManager.IsTaskbarInfoLoaded() || !Regex.IsMatch(programWindow.TaskbarSubIndex?.ToString() ?? String.Empty, layoutRule.Filters.TaskbarSubIndex))
                             continue;
                 }
                 catch (Exception ex) when (ex.Message.StartsWith("Invalid pattern")) // It doesn't know RegexParseException for some reason.

@@ -35,6 +35,8 @@ namespace BlueprintWindowManager
             _buffer = new char[BufferSize];
         }
 
+        public bool IsTaskbarInfoLoaded() => (_taskbarInfo != null);
+
         public bool LoadProgramWindows()
         {
             if (!WinApiUtils.IsWindows11OrHigher())

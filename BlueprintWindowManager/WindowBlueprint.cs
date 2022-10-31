@@ -61,14 +61,14 @@ namespace BlueprintWindowManager
         public string? WindowClass { get; private set; }
         [JsonProperty("programPath")]
         public string? ProgramPath { get; private set; }
+        [JsonProperty("isToolWindow")]
+        public bool? IsToolWindow { get; private set; }
         [JsonProperty("taskbarAppId")]
         public string? TaskbarAppId { get; private set; }
         [JsonProperty("taskbarIndex")]
         public string? TaskbarIndex { get; private set; }
         [JsonProperty("taskbarSubIndex")]
         public string? TaskbarSubIndex { get; private set; }
-        [JsonProperty("isToolWindow")]
-        public bool? IsToolWindow { get; private set; }
     }
 
     public class WindowRect
